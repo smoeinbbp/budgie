@@ -1,6 +1,7 @@
 defmodule Budgie.TrackingTest do
   use Budgie.DataCase
 
+  import Budgie.TrackingFixtures
   alias Budgie.Tracking
 
   describe "budgets" do
@@ -9,13 +10,7 @@ defmodule Budgie.TrackingTest do
     test "create_budget/2 with valid data creates budget" do
       user = Budgie.AccountsFixtures.user_fixture()
 
-      valid_attr = %{
-        name: "Test Budget",
-        description: "A test budget",
-        start_date: ~D[2025-01-01],
-        end_date: ~D[2025-01-31],
-        creator_id: user.id
-      }
+      valid_attr = valid_budget_attrs(%{creator_id: user.id})
 
       assert {:ok, %Budget{} = budget} = Tracking.create_budget(valid_attr)
       assert budget.name == "Test Budget"
@@ -28,12 +23,9 @@ defmodule Budgie.TrackingTest do
     test "create_budget/2 requires name" do
       user = Budgie.AccountsFixtures.user_fixture()
 
-      invalid_attr = %{
-        description: "A test budget",
-        start_date: ~D[2025-01-01],
-        end_date: ~D[2025-01-31],
-        creator_id: user.id
-      }
+      invalid_attr =
+        valid_budget_attrs(%{creator_id: user.id})
+        |> Map.delete(:name)
 
       assert {:error, %Ecto.Changeset{} = changeset} = Tracking.create_budget(invalid_attr)
       assert changeset.valid? == false
@@ -42,15 +34,12 @@ defmodule Budgie.TrackingTest do
     end
 
     test "create_budget/2 requires valid dates" do
-      user = Budgie.AccountsFixtures.user_fixture()
-
-      invalid_attr = %{
-        name: "Test Budget",
-        description: "A test budget",
-        start_date: ~D[2025-01-31],
-        end_date: ~D[2025-01-01],
-        creator_id: user.id
-      }
+      invalid_attr =
+        valid_budget_attrs()
+        |> Map.merge(%{
+          start_date: ~D[2025-01-31],
+          end_date: ~D[2025-01-01]
+        })
 
       assert {:error, %Ecto.Changeset{} = changeset} = Tracking.create_budget(invalid_attr)
       assert changeset.valid? == false
