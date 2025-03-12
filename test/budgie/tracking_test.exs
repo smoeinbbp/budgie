@@ -8,16 +8,14 @@ defmodule Budgie.TrackingTest do
     alias Budgie.Tracking.Budget
 
     test "create_budget/2 with valid data creates budget" do
-      user = Budgie.AccountsFixtures.user_fixture()
+      attrs = params_with_assocs(:budget)
 
-      valid_attr = valid_budget_attrs(%{creator_id: user.id})
-
-      assert {:ok, %Budget{} = budget} = Tracking.create_budget(valid_attr)
-      assert budget.name == "Test Budget"
-      assert budget.description == "A test budget"
-      assert budget.start_date == ~D[2025-01-01]
-      assert budget.end_date == ~D[2025-01-31]
-      assert budget.creator_id == user.id
+      assert {:ok, %Budget{} = budget} = Tracking.create_budget(attrs)
+      assert budget.name == attrs.name
+      assert budget.description == attrs.description
+      assert budget.start_date == attrs.start_date
+      assert budget.end_date == attrs.end_date
+      assert budget.creator_id == attrs.creator_id
     end
 
     test "create_budget/2 requires name" do
