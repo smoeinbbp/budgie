@@ -47,9 +47,20 @@ defmodule Budgie.Tracking do
     |> Repo.insert()
   end
 
+  def update_transaction(%BudgetTransaction{} = transaction, attrs) do
+    transaction
+    |> BudgetTransaction.changeset(attrs)
+    |> Repo.update()
+  end
+
+  def delete_transaction(%BudgetTransaction{} = transaction) do
+    Repo.delete(transaction)
+  end
+
   def list_transactions(budget_or_budget_id, criteria \\ [])
 
-  def list_transactions(%Budget{id: budget_id}, criteria), do: list_transactions(budget_id, criteria)
+  def list_transactions(%Budget{id: budget_id}, criteria),
+    do: list_transactions(budget_id, criteria)
 
   def list_transactions(budget_id, criteria) do
     transaction_query([{:budget, budget_id} | criteria])
@@ -65,7 +76,7 @@ defmodule Budgie.Tracking do
         from t in query, where: t.budget_id == ^budget_id
 
       {:order_by, binding}, query ->
-      # Remove any specific ordering if sort is specified
+        # Remove any existing ordering if sort is specified
         from t in exclude(query, :order_by), order_by: ^binding
 
       {:preload, bindings}, query ->
@@ -76,8 +87,8 @@ defmodule Budgie.Tracking do
     end)
   end
 
-  def change_transaction(budget, attrs \\ %{}) do
-      BudgetTransaction.changeset(budget, attrs)
+  def change_transaction(budget_transaction, attrs \\ %{}) do
+    BudgetTransaction.changeset(budget_transaction, attrs)
   end
 
   def summarize_budget_transactions(%Budget{id: budget_id}),
